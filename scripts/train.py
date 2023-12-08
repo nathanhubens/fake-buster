@@ -2,11 +2,12 @@ from os import device_encoding
 from fastai.vision.all import *
 from fastcore.script import *
 from utils import *
-from mesonet import *
-from efficientnet_pytorch_test import *
+#from mesonet import *
+#from efficientnet_pytorch_test import *
 from custom import *
 from fasterai.sparse.all import *
 from fasterai.distill.all import *
+#from albumentations.core. import Transforms
 
 
 class AlbumentationsTransform(DisplayedTransform):
@@ -37,7 +38,7 @@ def get_dls(size=256, bs=32, blur_limit=3, var_limit=(25., 50.), quality_lower=5
                      item_tfms=get_item_tfms(size, blur_limit, var_limit, quality_lower, quality_upper, num_holes, hole_size),
                      batch_tfms = aug_transforms())
 
-    return faces.dataloaders(Path('../data/images'), bs=bs, device=device)
+    return faces.dataloaders(Path('../../../deepfake-buster/data'), bs=bs, device=device)
 
 
 class ProgressiveLearningCallback(Callback):
@@ -104,7 +105,7 @@ def main(
         name_teacher = 'dw_xrn18_sa_se_mixup_prog.pkl'
 
         teacher = load_learner(name_teacher, cpu=False)
-        teacher = teacher.to_fp16()
+        #teacher = teacher.to_fp16()
         teacher.model.to(device)
 
         print(count_parameters(m))
@@ -112,17 +113,17 @@ def main(
         print(f'Run: {run}')
         learn = Learner(dls, m, opt_func=opt_func, metrics=[accuracy], loss_func=LabelSmoothingCrossEntropy())
 
-        learn = learn.to_fp16()
+        #learn = learn.to_fp16()
         cbs = MixUp(mixup) if mixup else []
 
         loss = partial(SoftTarget, T=30)
         kd = KnowledgeDistillation(teacher, loss)
 
         prog = ProgressiveLearningCallback(device=device)
-        sp = SparsifyCallback(50, 'weight', 'local', large_final, annealing_custom) if prune else []
+        sp = SparsifyCallback(50, 'filter', 'local', large_final, annealing_custom) if prune else []
         csv = CSVLogger(fname=name+'_'+str(run)+'.csv')
 
 
         learn.fit_one_cycle(epochs, lr, wd=wd, cbs=[cbs, csv, prog, sp, kd])
 
-        learn.export(name+'_'+str(run)+'.pkl')
+        learn.export(name+'_'+str(run)+'_new.pkl')

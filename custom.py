@@ -1,5 +1,5 @@
 from fastai.vision.all import *
-from torchvision.models.utils import load_state_dict_from_url
+from torch.hub import load_state_dict_from_url
 from typing import Union, Tuple, Optional
 
 import torch

@@ -1,10 +1,11 @@
 import sys
 sys.path.insert(0,'../scripts')
+sys.path.insert(0,'../face_detection')
 sys.path.insert(0,'..')
 
 from fastai.vision.all import *
 from face_detection.video_utils import (nms, read_all_frames, plot_detections, get_video_stats, read_random_frames, load_all_metadata)
-from face_detection.EasyBlazeFace import EasyBlazeFace
+#from face_detection.EasyBlazeFace import EasyBlazeFace
 from face_detection.EasyRetinaFace import EasyRetinaFace
 #from metrics import *
 import albumentations as A
@@ -53,7 +54,8 @@ torch.cuda.set_device(2)
 detector = EasyRetinaFace(path= '../face_detection/Pytorch_Retinaface/weights/Resnet50_Final.pth', device=device)
 
 
-name = 'dw_xrn18_sa_se_mixup_prog_prune_fp16_KD_1'
+#name = 'dw_xrn18_sa_se_mixup_prog_prune_fp16_KD_1'
+name = 'dw_xresnet18_filter_local_50_new'
 
 
 
@@ -110,7 +112,7 @@ def get_cropped_faces(frame, detections):
 def get_preds(faces):
     return np.mean([learn.predict(f)[2][0] for f in faces]) # returns the "fakeness" of the extracted face
 
-path = Path('../data/videos/test')
+path = Path('../../../deepfake-buster/data/videos/test')
 
 def get_faces(frames, frames_detections):
     
