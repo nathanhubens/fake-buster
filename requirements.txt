@@ -1,3 +1,3 @@
-fastai
+fastai==1
 voila
 ipywidgets
